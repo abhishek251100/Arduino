@@ -59,7 +59,35 @@ dissection engine** ([object_lab.py](AYUS/python/object_lab.py)) built on PyVist
 that renders off-screen (so it's fully testable without a monitor).
 
 > Install the extra 3D library once:  `pip install pyvista`
-> *(Coming next: any-photo → 3D via AI depth, and a timed dissection game.)*
+
+---
+
+## 🖼️ Any photo → 3D relief (built into the Studio)
+
+Drop any image into **`assets/images/`** and it appears in the Studio's model
+list — the photo becomes a **tiltable, sliceable 3D surface** (bright areas rise).
+Works with **zero extra installs** (a luminance heightmap). For photorealistic AI
+depth, optionally `pip install torch timm` and switch the provider to `"midas"`
+(see **SETUP_GUIDE.md**). Engine: [image3d.py](AYUS/python/image3d.py).
+
+---
+
+## 🎮 Slice Surgeon — the gesture game (`python game.py`)
+
+A timed arcade game: match the on-screen **cut line** with a real scalpel gesture
+(pinch + drag) before the clock runs out. Accurate cuts score big, each level
+tightens the tolerance, three misses = game over. Engine: [game.py](AYUS/python/game.py).
+
+---
+
+## ▶️ The three apps + the tests
+
+| Run | What you get | Needs |
+|---|---|---|
+| `python main.py`  | 12 gesture **LED/sensor** modes | webcam (+ Arduino optional) |
+| `python studio.py`| **3D dissection** studio + photo→3D | webcam + `pyvista` |
+| `python game.py`  | **Slice Surgeon** game | webcam + `pyvista` |
+| `python run_all_tests.py` | verify **everything** works | nothing (no cam/board) |
 
 ---
 

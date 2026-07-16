@@ -17,20 +17,25 @@ You can also load your own file:  Scene3D(model="path/to/thing.obj").
 Supported files: .obj .stl .ply .vtk   (glb/gltf: see README notes).
 """
 
+import os
 import math
 import numpy as np
 import pyvista as pv
 
 pv.OFF_SCREEN = True
 
+# depth engine for photo -> 3D reliefs: "auto" | "luminance" | "midas"
+IMAGE_DEPTH_PROVIDER = "auto"
+
 
 # ---------------------------------------------------------------- a model part
 class Part:
-    def __init__(self, mesh, color, name, direction):
+    def __init__(self, mesh, color, name, direction, texture=None):
         self.base = mesh                    # untouched original
         self.color = color
         self.name = name
         self.direction = np.array(direction, dtype=float)  # explode direction
+        self.texture = texture              # pyvista Texture for photo reliefs
 
 
 # ---------------------------------------------------------------- model makers
@@ -110,13 +115,18 @@ class Scene3D:
 
     # ---- loading ----
     def load(self, model):
+        import image3d
         if model in BUILTINS:
             self.parts, self.title = BUILTINS[model]()
+        elif image3d.is_image(model):                  # a photo -> 3D relief
+            mesh, tex = image3d.build_relief(model, provider=IMAGE_DEPTH_PROVIDER)
+            self.parts = [Part(mesh, "#ffffff", "relief", (0, 1, 0), texture=tex)]
+            self.title = "IMG:" + os.path.basename(model)
         else:
-            mesh = pv.read(model)                      # a real file
+            mesh = pv.read(model)                      # a real 3D file (.obj/.stl/.ply)
             mesh = mesh.scale(1.0 / max(mesh.length, 1e-6), inplace=False)
             self.parts = [Part(mesh, "#9fd3ff", "model", (0, 1, 0))]
-            self.title = str(model).split("/")[-1].split("\\")[-1]
+            self.title = os.path.basename(str(model))
         b = _bounds_of(self.parts)
         self._diag = math.dist(b[::2], b[1::2]) or 2.0
         self.reset_view()
@@ -162,9 +172,13 @@ class Scene3D:
                     pass
             if m.n_points == 0:
                 continue
-            p.add_mesh(m, color=_rgb(part.color), opacity=_opacity(part.color),
-                       smooth_shading=True, specular=0.6, specular_power=18,
-                       ambient=0.25, diffuse=0.9)
+            if part.texture is not None:
+                p.add_mesh(m, texture=part.texture, smooth_shading=True,
+                           ambient=0.35, diffuse=0.9)
+            else:
+                p.add_mesh(m, color=_rgb(part.color), opacity=_opacity(part.color),
+                           smooth_shading=True, specular=0.6, specular_power=18,
+                           ambient=0.25, diffuse=0.9)
         p.camera_position = "iso"
         p.camera.azimuth = self.azim
         p.camera.elevation = self.elev

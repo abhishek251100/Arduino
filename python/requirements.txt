@@ -11,5 +11,13 @@ opencv-python>=4.10
 numpy>=1.26
 pyserial>=3.5
 
-# 3D Gesture Studio (studio.py). Safe to skip if you only want the LED app.
+# 3D Gesture Studio (studio.py) + games + image->3D. Skip only if you want
+# just the LED app. pyvista pulls in vtk (the 3D engine).
 pyvista>=0.44
+
+# ---- OPTIONAL: real AI depth for photo->3D (studio image reliefs) ----------
+# The default depth engine ("luminance") needs NOTHING extra and runs anywhere.
+# For much more realistic 3D from photos, install MiDaS and set the provider to
+# "midas" (see SETUP_GUIDE.md). Big download; a GPU makes it fast, CPU is slow.
+#   pip install torch timm
+

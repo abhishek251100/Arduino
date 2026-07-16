@@ -18,6 +18,48 @@ On Mega/ESP32 the sketch uses different pins — see the pin map at the top of
 
 ---
 
+## 🔎 Which parts does each feature need? (pick your project)
+
+Every feature is a mode in **App 1** (`python main.py`). Wire only the parts a
+mode needs, and set the matching `ENABLE_*` flag to `1` in the sketch.
+
+| Mode (key) | Parts to wire | Enable flag(s) |
+|---|---|---|
+| Finger LED Bar `1` | 5 LEDs + resistors | `ENABLE_LEDS` |
+| Binary Counter `2` | 5 LEDs + resistors | `ENABLE_LEDS` |
+| Pinch Dimmer `3` | 1 LED on a `~`PWM pin | `ENABLE_LEDS` |
+| RGB Mixer `4` | 1 RGB LED + 3 resistors | `ENABLE_RGB` |
+| Servo Steering `5` | 1 servo motor | `ENABLE_SERVO` |
+| Theremin `6` | 1 buzzer | `ENABLE_BUZZER` |
+| Finger Piano `7` | 1 buzzer | `ENABLE_BUZZER` |
+| Reaction Game `8` | 5 LEDs + resistors | `ENABLE_LEDS` |
+| Simon Says `9` | 5 LEDs + resistors | `ENABLE_LEDS` |
+| Ultrasonic Radar `0` | HC-SR04 sensor (+ LEDs to show it) | `ENABLE_ULTRA` (+`LEDS`) |
+| Auto Night Light `-` | LDR + 10kΩ + RGB LED | `ENABLE_LDR` + `ENABLE_RGB` |
+| Knob Control `=` | potentiometer (+ LEDs/servo) | `ENABLE_POT` (+`LEDS`/`SERVO`) |
+
+> The **3D Studio** (`studio.py`) and **Slice Surgeon** (`game.py`) need **no
+> wiring at all** — just the webcam. Wiring is only for App 1's physical output.
+
+## 📌 Master pin map (Arduino Uno / Nano defaults)
+
+| Part | Pin(s) | Notes |
+|---|---|---|
+| LED 1–5 | D2, D3, D4, D5, D6 | D3/D5/D6 are `~`PWM (can fade) |
+| RGB LED (R,G,B) | D9, D10, D11 | all `~`PWM; common leg → GND (or 5V if common-anode) |
+| Buzzer | D8 | `+` to D8, other leg to GND |
+| Servo (signal) | D7 | red→5V, brown/black→GND |
+| Ultrasonic Trig / Echo | D12 / D13 | VCC→5V, GND→GND |
+| LDR (light) | A0 | needs a 10kΩ divider resistor (see Level 6) |
+| Potentiometer (wiper) | A1 | outer legs → 5V and GND |
+| DHT11 data (optional) | A2 | needs the Adafruit DHT library |
+
+> **Different board?** The sketch auto-picks pins for **Mega** and **ESP32** —
+> the exact numbers are printed at the top of `gesture_control.ino`. Everything
+> below is the Uno/Nano layout; the *idea* is identical on every board.
+
+---
+
 ## LEVEL 1 — the 5 LEDs  ⭐ (do this first)
 
 You need: 5 LEDs, 5 resistors (220Ω or 330Ω — any of these work), jumper wires.
@@ -149,6 +191,71 @@ Needs a library: in Arduino IDE → **Tools → Manage Libraries** → search
 
 (3-pin breakout modules have these labelled. A 10kΩ resistor between VCC and DATA
 helps stability if yours is the bare 4-pin sensor.)
+
+---
+
+## 🧩 Ready-made project recipes (copy one)
+
+Each recipe = a complete build. Wire the parts, set the flags, upload, run the
+app, and use the listed mode. Great for picking a booth project per student.
+
+### Recipe A — "Finger Lights" (the flagship) ⭐
+- **Parts:** Arduino + 5 LEDs + 5×220Ω + breadboard + jumpers.
+- **Wire:** Levels 1. LEDs on D2–D6, short legs to GND.
+- **Flags:** `ENABLE_LEDS 1` (all others `0`).
+- **Run:** `python main.py` → mode `1` (or `2` for binary).
+- **Demo line:** "Hold up fingers — the lights count with you. Mode 2 turns your
+  hand into a binary computer (count to 31 on one hand!)."
+
+### Recipe B — "Gesture Mood Lamp" 🌈
+- **Parts:** Arduino + 1 RGB LED + 3×220Ω.
+- **Wire:** Level 2 (R→D9, G→D10, B→D11, common→GND).
+- **Flags:** `ENABLE_RGB 1`.
+- **Run:** `python main.py` → mode `4`. Move your hand to mix colours.
+- **Demo line:** "Your hand paints with light — height, sideways and pinch mix
+  red, green and blue."
+
+### Recipe C — "Air Theremin / Hand Piano" 🎵
+- **Parts:** Arduino + 1 buzzer.
+- **Wire:** Level 3 (buzzer + → D8, other leg → GND).
+- **Flags:** `ENABLE_BUZZER 1`.
+- **Run:** `python main.py` → mode `6` (theremin) or `7` (piano).
+- **Demo line:** "Raise your hand to raise the pitch — an instrument you play in
+  thin air."
+
+### Recipe D — "Gesture Servo Gauge / Mini Robot Arm" ⚙️
+- **Parts:** Arduino + 1 SG90 servo (big servos: separate 5V battery, shared GND).
+- **Wire:** Level 4 (signal→D7, red→5V, brown→GND).
+- **Flags:** `ENABLE_SERVO 1`. (On an Uno, keep `ENABLE_RGB 0` — they clash on 9/10.)
+- **Run:** `python main.py` → mode `5`. Move hand left/right to sweep it.
+- **Demo line:** "Your hand is the joystick — no controller, just gestures."
+
+### Recipe E — "Smart Sensor Dashboard" 📊
+- **Parts:** Arduino + HC-SR04 + LDR + 10kΩ + potentiometer + 5 LEDs.
+- **Wire:** Levels 1, 5, 6, 7.
+- **Flags:** `ENABLE_LEDS 1`, `ENABLE_ULTRA 1`, `ENABLE_LDR 1`, `ENABLE_POT 1`.
+- **Run:** `python main.py` → modes `0` (radar), `-` (night light), `=` (knob).
+- **Demo line:** "It senses distance, light and a knob — a tiny smart-home kit."
+
+### Recipe F — "3D Hologram Table" (no wiring!) 🧊
+- **Parts:** just a laptop + webcam (optionally a big monitor/projector).
+- **Run:** `python studio.py` (dissect a cell/atom/earth or your own photos) and
+  `python game.py` (Slice Surgeon). Add photos to `assets/images/`.
+- **Demo line:** "Grab the atom out of the air, pull it apart, slice it open —
+  all with your bare hands."
+
+## ⚡ Powering more than one thing at once
+- **A few LEDs** are fine straight from Arduino pins (each pin ≤ ~20mA; keep the
+  whole board under ~200mA total).
+- **Servos** can dip the voltage and reset the board. For anything bigger than a
+  small SG90, power the servo from a **separate 5V supply / battery pack** and
+  **join the grounds** (servo GND ↔ Arduino GND). Signal still goes to D7.
+- **Sensor modules** (HC-SR04, DHT, pot) draw very little — 5V and GND are fine.
+- Feed power along the breadboard **rails** (5V→red, GND→blue) so every part taps
+  the nearest hole instead of crowding the Arduino's pins.
+- On an **Uno**, remember: enabling the servo library disables `~`PWM on pins
+  9 & 10, so don't run the RGB LED and the servo at the same time. On a **Mega**
+  or **ESP32** there are enough pins to do both.
 
 ---
 

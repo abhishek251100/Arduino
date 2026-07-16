@@ -20,12 +20,29 @@ import time
 import cv2
 import numpy as np
 
+import glob
+import os
+
 import config
 from hand_tracker import HandTracker
 from gesture_engine import GestureEngine
 from object_lab import Scene3D
+import image3d
 
-MODELS = ["cell", "atom", "earth"]
+# built-in science models + ANY photos you drop into assets/images/
+_IMG_DIR = os.path.join(os.path.dirname(__file__), "..", "assets", "images")
+
+
+def discover_models():
+    models = ["cell", "atom", "earth"]
+    if os.path.isdir(_IMG_DIR):
+        for f in sorted(glob.glob(os.path.join(_IMG_DIR, "*"))):
+            if image3d.is_image(f):
+                models.append(f)
+    return models
+
+
+MODELS = discover_models()
 
 
 def cycle_model(scene, state, step):
