@@ -1,0 +1,15 @@
+# AYUS - Gesture Universe : Python dependencies
+# Install with:   pip install -r requirements.txt
+#
+# Loose lower-bounds so pip picks builds that match YOUR Python version.
+# Tested resolving cleanly on Python 3.14 (mediapipe 0.10.35, numpy 2.5).
+# If you are on Python 3.9-3.12 these also work (pip picks matching wheels).
+
+mediapipe>=0.10.18
+cvzone>=1.6.1
+opencv-python>=4.10
+numpy>=1.26
+pyserial>=3.5
+
+# 3D Gesture Studio (studio.py). Safe to skip if you only want the LED app.
+pyvista>=0.44

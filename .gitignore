@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Test render output
+python/_render_out/
+
+# Auto-downloaded mediapipe model (re-downloads on first run)
+python/hand_landmarker.task
+*.task
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
